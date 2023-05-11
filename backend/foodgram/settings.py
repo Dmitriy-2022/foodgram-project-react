@@ -30,6 +30,8 @@ SECRET_KEY = 'django-insecure-g3k_o9e!24q@4jkvk&#01@n8p)tm&_g!v@%2!5y99$h7&d#oc^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'users.FoodgramUser'
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'api',
     'users',
@@ -138,8 +141,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LENGTH_254 = 254
+LENGTH_200 = 200
+LENGTH_150 = 150
+LENGTH_7 = 7
