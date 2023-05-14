@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'api',
     'users',
     'recipes',
@@ -156,3 +158,18 @@ LENGTH_254 = 254
 LENGTH_200 = 200
 LENGTH_150 = 150
 LENGTH_7 = 7
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+# }

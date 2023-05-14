@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 
+# from ..api.serializers import UsersSerializer
 
 # def validate_username(value):
 #     USERNAME_ME = 'Нельзя использовать "me" в качестве username'
@@ -18,15 +19,21 @@ from django.conf import settings
 #         )
 #     return value
 
+
 class FoodgramUser(AbstractUser):
+    REQUIRED_FIELDS = ['username', 'id', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=settings.LENGTH_254,
+        unique=True,
     )
     username = models.CharField(
-        verbose_name='Уникальный юзернейм',
+        verbose_name='Логин',
         max_length=settings.LENGTH_150,
         unique=True,
+        blank=True,
     )
     first_name = models.CharField(
         verbose_name='Имя',
@@ -40,6 +47,15 @@ class FoodgramUser(AbstractUser):
         verbose_name='Пароль',
         max_length=settings.LENGTH_150,
     )
+    is_subscribed = models.BooleanField(
+        verbose_name='Подписка',
+        default=False,
+    )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('id',)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

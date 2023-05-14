@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import Recipe, Tag, Ingredient, RecipeIngredient
-# Register your models here.
 
 
 admin.site.register(Tag)
@@ -14,10 +13,12 @@ class RecipeIngredientInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    filter_horizontal = ['tags', 'ingredients']
     inlines = (RecipeIngredientInline, )
+    filter_horizontal = ['tags', 'ingredients']
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
+    # filter_horizontal = ['id', 'ingredients']
+

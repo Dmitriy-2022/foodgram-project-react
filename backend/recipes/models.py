@@ -51,7 +51,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Картинка',
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание',
     )
     ingredients = models.ManyToManyField(
@@ -64,7 +64,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Тег',
     )
-    time = models.IntegerField(
+    cooking_time = models.IntegerField(
         verbose_name='Время приготовления(мин.)'
     )
 
