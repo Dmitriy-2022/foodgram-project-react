@@ -15,10 +15,11 @@ class RecipeIngredientInline(admin.TabularInline):
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
     filter_horizontal = ['tags', 'ingredients']
+    list_display = [
+        'id', 'author', 'name', ]
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
     # filter_horizontal = ['id', 'ingredients']
-

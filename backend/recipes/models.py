@@ -35,7 +35,7 @@ class Ingredient(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f'{self.id}'
 
 
 class Recipe(models.Model):
@@ -73,13 +73,14 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    count = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
+        related_name='amount',
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -87,5 +88,9 @@ class RecipeIngredient(models.Model):
         verbose_name='Рецепт',
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецептах'
+
     def __str__(self):
-        return f'{self.recipe} - {self.ingredient}'
+        return f'{self.recipe.id} - {self.ingredient.id}'
