@@ -11,6 +11,8 @@ router.register('users', FoodgramUserViewSet, basename='users')
 router.register('tags', TagsViewSet, basename='tags')
 router.register('recipes', RecipesViewSet, basename='recipes')
 router.register('ingredients', IngredientsViewSet, basename='ingredients')
+router.register(r'recipes/(?P<recipe_id>.+)', RecipesViewSet, basename='favorite')
+router.register(r'users/(?P<user_id>.+)', FoodgramUserViewSet, basename='follow')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -42,6 +42,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         FoodgramUser,
         verbose_name='Автор',
+        related_name='author',
         on_delete=models.CASCADE
     )
     name = models.CharField(
@@ -59,6 +60,7 @@ class Recipe(models.Model):
         through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
+        related_name='ingredients',
     )
     tags = models.ManyToManyField(
         Tag,
@@ -86,6 +88,7 @@ class RecipeIngredient(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
+        related_name='recipe_set',
     )
 
     class Meta:
@@ -93,4 +96,70 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты в рецептах'
 
     def __str__(self):
-        return f'{self.recipe.id} - {self.ingredient.id}'
+        return f'{self.recipe.name}({self.recipe.id}) - {self.ingredient.id}'
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        FoodgramUser,
+        related_name='follower',
+        verbose_name='Подписчик',
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        FoodgramUser,
+        related_name='following',
+        verbose_name='Автор',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = ['pk']
+        unique_together = ['user', 'author']
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
+
+
+class ShoppingCart(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='shopping_cart',
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        FoodgramUser,
+        related_name='shopping_user',
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f'Пользователь {self.user} добавил в в корзину {self.recipe}'
+
+    class Meta:
+        ordering = ['pk']
+        unique_together = ['user', 'recipe']
+
+
+class Favorite(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='favorite',
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        FoodgramUser,
+        related_name='user',
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f'Пользователь {self.user} добавил в избранное {self.recipe}'
+
+    class Meta:
+        ordering = ['pk']
+        unique_together = ['user', 'recipe']

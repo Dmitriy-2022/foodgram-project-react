@@ -6,8 +6,8 @@ from rest_framework.decorators import action, api_view, permission_classes
 from djoser import views
 from django.shortcuts import get_object_or_404
 
-from recipes.models import Tag, Recipe, Ingredient, RecipeIngredient
-from .serializers import ReadRecipeSerializer, UsersSerializer, PasswordSerializer, TagSerializer, CreateUpdateRecipeSerializer, IngredientSerializer
+from recipes.models import Tag, Recipe, Ingredient, Follow, Favorite, ShoppingCart
+from .serializers import SmallReadRecipeSerializer, ReadRecipeSerializer, UsersSerializer, PasswordSerializer, TagSerializer, CreateUpdateRecipeSerializer, IngredientSerializer, FollowSerializer
 
 User = get_user_model()
 SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
@@ -31,7 +31,7 @@ class FoodgramUserViewSet(views.UserViewSet):
         serializer = UsersSerializer(user)
         return Response(serializer.data)
 
-    @action(["post"], detail=False)
+    @action(['post'], detail=False)
     def set_password(self, request):
         user = self.request.user
         serializer = PasswordSerializer(data=request.data)
@@ -39,6 +39,22 @@ class FoodgramUserViewSet(views.UserViewSet):
         if serializer.is_valid(raise_exception=True):
             user.set_password(serializer.validated_data["new_password"])
             user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['post', 'delete'],
+            detail=True,
+            url_path='subscribe',
+            )
+    def subscribe(self, request, id=None):
+        user = self.request.user
+        author = get_object_or_404(User, pk=id)
+        follow, _ = Follow.objects.get_or_create(author=author, user=user)
+
+        if request.method == 'POST':
+            serializer = FollowSerializer(author, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -51,24 +67,57 @@ class TagsViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.AllowAny])
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = ReadRecipeSerializer
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return ReadRecipeSerializer
         return CreateUpdateRecipeSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(['post', 'delete'],
+            detail=True,
+            url_path='favorite',
+            )
+    def favorite(self, request, pk=None):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        favorite, _ = Favorite.objects.get_or_create(recipe=recipe, user=user)
+
+        if request.method == 'POST':
+            serializer = SmallReadRecipeSerializer(recipe, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['post', 'delete'],
+            detail=True,
+            url_path='shopping_cart',
+            )
+    def shopping_cart(self, request, pk=None):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        shopping_cart, _ = ShoppingCart.objects.get_or_create(recipe=recipe, user=user)
+
+        if request.method == 'POST':
+            serializer = SmallReadRecipeSerializer(recipe, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            shopping_cart.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 @permission_classes([permissions.AllowAny])
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+
+
+# @permission_classes([permissions.AllowAny])
+# class FavoriteViewSet(viewsets.ModelViewSet):
+#     queryset = Recipe.objects.all()
+#     serializer_class = FavoriteSerializer
+
+#     def perform_create(self, serializer):
+#         return serializer.save(is_favorited=True)

@@ -47,11 +47,6 @@ class FoodgramUser(AbstractUser):
         verbose_name='Пароль',
         max_length=settings.LENGTH_150,
     )
-    is_subscribed = models.BooleanField(
-        verbose_name='Подписка',
-        default=False,
-    )
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
