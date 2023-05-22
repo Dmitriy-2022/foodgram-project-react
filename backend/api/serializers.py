@@ -11,6 +11,8 @@ from django.core.files.base import ContentFile
 import base64
 import six
 import uuid
+from rest_framework.decorators import action, api_view, permission_classes
+
 
 User = get_user_model()
 
@@ -173,6 +175,9 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return ReadRecipeSerializer(instance).data
 
+    @action(detail=True,
+            permission_classes=permissions.IsAuthenticated
+            )
     def create(self, validated_data):
         list_obj = []
         ingredients = validated_data.pop('ingredients')

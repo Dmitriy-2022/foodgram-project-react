@@ -70,6 +70,9 @@ class Recipe(models.Model):
         verbose_name='Время приготовления(мин.)'
     )
 
+    class Meta:
+        ordering = ['-pk']
+
     def __str__(self):
         return self.name
 

@@ -10,9 +10,7 @@ class FoodgramUserAdmin(UserAdmin):
     add_form = FoodgramUserCreationForm
     form = FoodgramChangeForm
     model = FoodgramUser
+    list_filter = ('email', 'first_name')
     list_display = [
-        'id', 'email', 'username', 'first_name', 'last_name', 'password',
+        'id', 'email', 'username', 'first_name', 'last_name',
         ]
-
-
-# Register your models here.
