@@ -1,18 +1,18 @@
-from users.models import FoodgramUser
-from recipes.models import ShoppingCart, Tag, Recipe, Ingredient, RecipeIngredient, Follow, Favorite
-from rest_framework import serializers
-from django import core
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from rest_framework.response import Response
-from rest_framework import filters, permissions, status
-from django.core.files.base import ContentFile
+from rest_framework import serializers, permissions
+from rest_framework.decorators import action
+
 import base64
 import six
 import uuid
-from rest_framework.decorators import action, api_view, permission_classes
 
+from users.models import FoodgramUser
+from recipes.models import (
+    ShoppingCart, Tag, Recipe,
+    Ingredient, RecipeIngredient, Follow, Favorite
+    )
 
 User = get_user_model()
 
@@ -41,7 +41,8 @@ class UsersSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            is_subscribed = Follow.objects.filter(user=request.user, author=instance).exists()
+            is_subscribed = Follow.objects.filter(
+                user=request.user, author=instance).exists()
         else:
             is_subscribed = False
         representation['is_subscribed'] = is_subscribed
@@ -111,7 +112,8 @@ class AmountIngredientsSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField(source='ingredient.name')
-    measurement_unit = serializers.StringRelatedField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.StringRelatedField(
+        source='ingredient.measurement_unit')
     id = serializers.PrimaryKeyRelatedField(
         source='ingredient',
         queryset=Ingredient.objects.all()
@@ -142,13 +144,15 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+            return Favorite.objects.filter(
+                user=request.user, recipe=obj).exists()
         return False
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return ShoppingCart.objects.filter(user=request.user, recipe=obj).exists()
+            return ShoppingCart.objects.filter(
+                user=request.user, recipe=obj).exists()
         return False
 
     class Meta:
@@ -162,7 +166,8 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None)
     ingredients = AmountIngredientsSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True)
 
     class Meta:
         model = Recipe

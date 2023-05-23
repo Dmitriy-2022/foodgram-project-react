@@ -1,22 +1,21 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import filters, permissions, status, viewsets, serializers
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from djoser import views
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 
-import reportlab
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
-import io
-from django.http import FileResponse
+from recipes.models import (
+    Tag, Recipe, Ingredient,
+    Follow, Favorite, ShoppingCart
+    )
+from .serializers import (
+    SmallReadRecipeSerializer, ReadRecipeSerializer,
+    UsersSerializer, PasswordSerializer, TagSerializer,
+    CreateUpdateRecipeSerializer, IngredientSerializer, FollowSerializer
+    )
 
-from recipes.models import RecipeIngredient, Tag, Recipe, Ingredient, Follow, Favorite, ShoppingCart
-from .serializers import SmallReadRecipeSerializer, ReadRecipeSerializer, UsersSerializer, PasswordSerializer, TagSerializer, CreateUpdateRecipeSerializer, IngredientSerializer, FollowSerializer
 
 User = get_user_model()
 SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
@@ -64,8 +63,14 @@ class FoodgramUserViewSet(views.UserViewSet):
             url_path='subscriptions',
             )
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(following__user=request.user)
-        serializer = FollowSerializer(subscriptions, many=True)
+        queryset = User.objects.filter(following__user=request.user)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = FollowSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = FollowSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(['post'],
@@ -113,55 +118,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(['get'],
-            detail=False,
-            url_path='download_shopping_cart',
-            )
-    # def download_shopping_cart(self, request):
-    #     # response = HttpResponse(content_type='application/pdf')
-    #     # response['Content-Disposition'] = 'attachment; filename="shopping_cart.pdf"'
-    #     # p = canvas.Canvas(response) 
-    #     # p.setFont("Times-Roman", 55) 
-    #     # p.drawString(100, 700, "Hello, Javatpoint.")
-    #     # p.showPage()
-    #     # p.save()
-    #     # return response
-
-
-
-    #     user = User.objects.filter(id=1)
-    #     # if not user.buylist.exists():
-    #     #     return Response(status=status.HTTP_400_BAD_REQUEST)
-    #     buylist = {}
-    #     ingredients = RecipeIngredient.objects.filter(recipe__shopping_cart__user=1).values_list(
-    #         'ingredient__name', 'ingredient__measurement_unit',
-    #         'amount',
-    #         )
-
-    #     for item in ingredients:
-    #         name = item[0]
-    #         if name not in buylist:
-    #             buylist[name] = {
-    #                 'measurement_unit': item[1],
-    #                 'amount': item[2]
-    #             }
-    #         else:
-    #             buylist[name]['amount'] += item[2]
-
-
-    #     buffer = io.BytesIO()
-
-    #     file = canvas.Canvas(buffer)
-    #     file.setFont("Times-Roman", 14)
-    #     file.drawString(100, 700, "Список покупок")
-    #     file.showPage()
-    #     file.save()
-    #     buffer.seek(0)
-    #     return FileResponse(
-    #         buffer,
-    #         as_attachment=True,
-    #         filename='shopping_cart.pdf'
-    #     )
     @action(['post', 'delete'],
             detail=True,
             url_path='favorite',
@@ -173,7 +129,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         favorite, _ = Favorite.objects.get_or_create(recipe=recipe, user=user)
 
         if request.method == 'POST':
-            serializer = SmallReadRecipeSerializer(recipe, context={'request': request})
+            serializer = SmallReadRecipeSerializer(
+                recipe, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             favorite.delete()
@@ -187,10 +144,12 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
-        shopping_cart, _ = ShoppingCart.objects.get_or_create(recipe=recipe, user=user)
+        shopping_cart, _ = ShoppingCart.objects.get_or_create(
+            recipe=recipe, user=user)
 
         if request.method == 'POST':
-            serializer = SmallReadRecipeSerializer(recipe, context={'request': request})
+            serializer = SmallReadRecipeSerializer(
+                recipe, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             shopping_cart.delete()
