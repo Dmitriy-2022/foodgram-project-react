@@ -1,12 +1,12 @@
+import base64
+import six
+import uuid
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from rest_framework import serializers, permissions
 from rest_framework.decorators import action
-
-import base64
-import six
-import uuid
 
 from users.models import FoodgramUser
 from recipes.models import (
@@ -34,7 +34,8 @@ class UsersSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return Follow.objects.filter(user=request.user, author=obj).exists()
+            return Follow.objects.filter(
+                user=request.user, author=obj).exists()
         return False
 
     def to_representation(self, instance):
@@ -177,35 +178,33 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             'text', 'cooking_time'
         )
 
-    def to_representation(self, instance):
-        return ReadRecipeSerializer(instance).data
+    def validate(self, data):
+        ingredients = data['ingredients']
+        ingredients_list = []
 
-    @action(detail=True,
-            permission_classes=permissions.IsAuthenticated
-            )
-    def create(self, validated_data):
-        list_obj = []
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags)
+        if len(ingredients) < 1:
+            raise serializers.ValidationError(
+                'Должен быть хотя бы 1 ингредиент!')
+        if len(data['tags']) < 1:
+            raise serializers.ValidationError(
+                'Должен быть хотя бы 1 тег!')
+        if data['cooking_time'] < 1:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть больше 1 мин.!')
 
         for ingredient in ingredients:
-            obj = RecipeIngredient(
-                ingredient=ingredient['id'],
-                amount=ingredient['amount'],
-                recipe=recipe,
-            )
-            list_obj.append(obj)
+            if ingredient['id'] in ingredients_list:
+                raise serializers.ValidationError(
+                    'Ингредиент должен быть уникальным!')
+            if ingredient['amount'] < 1:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше ноля!')
 
-        RecipeIngredient.objects.bulk_create(list_obj)
-        return recipe
+            ingredients_list.append(ingredient['id'])
 
-    def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients', None)
-        if ingredients is not None:
-            instance.ingredients.clear()
+        return data
 
+    def load_data(self, ingredients, instance):
         list_obj = []
 
         for ingredient in ingredients:
@@ -217,6 +216,30 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             list_obj.append(obj)
 
         RecipeIngredient.objects.bulk_create(list_obj)
+
+    def to_representation(self, instance):
+        return ReadRecipeSerializer(instance).data
+
+    @action(detail=True,
+            permission_classes=permissions.IsAuthenticated
+            )
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+
+        recipe.tags.set(tags)
+        self.load_data(ingredients, recipe)
+
+        return recipe
+
+    def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients', None)
+
+        if ingredients is not None:
+            instance.ingredients.clear()
+
+        self.load_data(ingredients, instance)
 
         return super().update(instance, validated_data)
 
@@ -248,11 +271,12 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         recipes = Recipe.objects.filter(author=obj)
-        recipes_count = len(recipes)
+        recipes_count = recipes.count()
         return recipes_count
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return Follow.objects.filter(user=request.user, author=obj).exists()
+            return Follow.objects.filter(
+                user=request.user, author=obj).exists()
         return False

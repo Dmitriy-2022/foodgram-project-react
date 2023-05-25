@@ -81,10 +81,10 @@ class FoodgramUserViewSet(views.UserViewSet):
         user = self.request.user
         serializer = PasswordSerializer(data=request.data)
 
-        if serializer.is_valid(raise_exception=True):
-            user.set_password(serializer.validated_data["new_password"])
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer.is_valid(raise_exception=True)
+        user.set_password(serializer.validated_data["new_password"])
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(['post', 'delete'],
             detail=True,
@@ -99,9 +99,9 @@ class FoodgramUserViewSet(views.UserViewSet):
         if request.method == 'POST':
             serializer = FollowSerializer(author, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            follow.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        follow.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
@@ -132,9 +132,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
             serializer = SmallReadRecipeSerializer(
                 recipe, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(['post', 'delete'],
             detail=True,
@@ -151,6 +151,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
             serializer = SmallReadRecipeSerializer(
                 recipe, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            shopping_cart.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        shopping_cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

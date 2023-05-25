@@ -1,6 +1,8 @@
 from django.db import models
-from users.models import FoodgramUser
 from django.conf import settings
+from django.core.validators import MinValueValidator
+
+from users.models import FoodgramUser
 
 
 class Tag(models.Model):
@@ -61,13 +63,20 @@ class Recipe(models.Model):
         through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
         related_name='ingredients',
+        blank=False
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Тег',
     )
     cooking_time = models.IntegerField(
-        verbose_name='Время приготовления(мин.)'
+        verbose_name='Время приготовления(мин.)',
+        validators=[
+            MinValueValidator(settings.MIN_TIME_COOK,
+                              message=f'Время приготовления не может быть'
+                                      f' меньше {settings.MIN_TIME_COOK}'
+                              )
+        ]
     )
 
     class Meta:
@@ -97,6 +106,11 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='unique_ingredient_recipe'),
+        ]
 
     def __str__(self):
         return f'{self.recipe.name}({self.recipe.id}) - {self.ingredient.id}'
@@ -118,7 +132,11 @@ class Follow(models.Model):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['user', 'author']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_user_author'),
+        ]
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}'
@@ -143,7 +161,11 @@ class ShoppingCart(models.Model):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['user', 'recipe']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe_shop_cart'),
+        ]
 
 
 class Favorite(models.Model):
@@ -165,4 +187,8 @@ class Favorite(models.Model):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['user', 'recipe']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe_favorite'),
+        ]
