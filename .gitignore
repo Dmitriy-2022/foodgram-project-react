@@ -137,5 +137,5 @@ dmypy.json
 static/
 media/
 
-data/
-frontend/
+# data/
+# frontend/
