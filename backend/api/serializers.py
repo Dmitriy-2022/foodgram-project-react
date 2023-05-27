@@ -89,7 +89,7 @@ class Base64ImageField(serializers.ImageField):
     def get_file_extension(self, file_name, decoded_file):
         import imghdr
         extension = imghdr.what(file_name, decoded_file)
-        extension = "jpg" if extension == "jpeg" else extension
+        extension = 'jpg' if extension == 'jpeg' else extension
         return extension
 
 
@@ -181,6 +181,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredients = data['ingredients']
         ingredients_list = []
+        print(set(dict(ingredients)))
 
         if len(ingredients) < 1:
             raise serializers.ValidationError(
@@ -220,9 +221,6 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return ReadRecipeSerializer(instance).data
 
-    @action(detail=True,
-            permission_classes=permissions.IsAuthenticated
-            )
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -270,9 +268,7 @@ class FollowSerializer(serializers.ModelSerializer):
         )
 
     def get_recipes_count(self, obj):
-        recipes = Recipe.objects.filter(author=obj)
-        recipes_count = recipes.count()
-        return recipes_count
+        return Recipe.objects.filter(author=obj).count()
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')

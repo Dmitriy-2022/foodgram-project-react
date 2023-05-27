@@ -82,7 +82,7 @@ class FoodgramUserViewSet(views.UserViewSet):
         serializer = PasswordSerializer(data=request.data)
 
         serializer.is_valid(raise_exception=True)
-        user.set_password(serializer.validated_data["new_password"])
+        user.set_password(serializer.validated_data['new_password'])
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
