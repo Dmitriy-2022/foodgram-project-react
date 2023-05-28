@@ -141,6 +141,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
     tags = TagRecipeSerializer(read_only=True, many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    image = Base64ImageField(required=False)
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -181,7 +182,6 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredients = data['ingredients']
         ingredients_list = []
-        print(set(dict(ingredients)))
 
         if len(ingredients) < 1:
             raise serializers.ValidationError(
@@ -222,9 +222,10 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         return ReadRecipeSerializer(instance).data
 
     def create(self, validated_data):
+        request = self.context.get('request')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = Recipe.objects.create(author=request.user, **validated_data)
 
         recipe.tags.set(tags)
         self.load_data(ingredients, recipe)
@@ -232,7 +233,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients', None)
+        ingredients = validated_data.pop('ingredients')
 
         if ingredients is not None:
             instance.ingredients.clear()

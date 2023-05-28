@@ -37,7 +37,7 @@ class Ingredient(models.Model):
     )
 
     def __str__(self):
-        return f'{self.id}'
+        return f'{self.name}'
 
 
 class Recipe(models.Model):
@@ -53,6 +53,8 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Картинка',
+        upload_to='recipes/',
+        blank=True,
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -89,6 +91,11 @@ class Recipe(models.Model):
 class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
+        validators=[
+            MinValueValidator(
+                1, 'Количество ингредиентов не может быть меньше 1'
+            )
+        ]
     )
     ingredient = models.ForeignKey(
         Ingredient,

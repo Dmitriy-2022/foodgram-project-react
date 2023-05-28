@@ -4,11 +4,11 @@ from django.db.models import Sum
 from rest_framework.response import Response
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from djoser import views
 from django.shortcuts import get_object_or_404
 
+from api.permissions import IsAdminAuthorOrReadOnly
 from recipes.models import (
     Tag, Recipe, Ingredient,
     Follow, Favorite, ShoppingCart,
@@ -23,12 +23,6 @@ from .serializers import (
 
 User = get_user_model()
 SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
-
-
-class MyPaginator(PageNumberPagination):
-    page_size = 6
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
 
 
 @permission_classes([permissions.IsAdminUser])
@@ -114,17 +108,12 @@ class FoodgramUserViewSet(views.UserViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
+    permission_classes = (IsAdminAuthorOrReadOnly, )
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return ReadRecipeSerializer
         return CreateUpdateRecipeSerializer
-
-    @action(detail=False,
-            permission_classes=permissions.IsAuthenticated
-            )
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
     @action(['post', 'delete'],
             detail=True,
