@@ -12,8 +12,8 @@ services:
     image: dimonium/foodgram_backend:latest
     restart: always
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static_value:/app/static/
+      - media_value:/app/media/
     depends_on:
       - db
     env_file:
@@ -22,7 +22,7 @@ services:
   frontend:
     image:  dimonium/foodgram_frontend:latest
     volumes:
-      - frontend:/app/build/
+      - frontend_value:/app/build/
 
   nginx:
     image: nginx:1.19.3
@@ -30,16 +30,15 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - ./static:/var/html/static/django/
-      - ./media:/var/html/media/
+      - ./docs/:/usr/share/nginx/html/api/docs/
+      - frontend_value:/usr/share/nginx/html/
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
     depends_on:
       - backend
       - frontend
 
 volumes:
-  db_data:
-  static:
-  media:
-  frontend:
+  static_value:
+  media_value:
+  frontend_value:
