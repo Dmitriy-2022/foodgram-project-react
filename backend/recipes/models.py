@@ -151,7 +151,7 @@ class ShoppingCart(models.Model):
     )
     user = models.ForeignKey(
         FoodgramUser,
-        related_name='shopping_user',
+        related_name='shopping_cart',
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )

@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
+from django.db.models import Sum
 from rest_framework.response import Response
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
@@ -9,7 +11,8 @@ from django.shortcuts import get_object_or_404
 
 from recipes.models import (
     Tag, Recipe, Ingredient,
-    Follow, Favorite, ShoppingCart
+    Follow, Favorite, ShoppingCart,
+    RecipeIngredient
     )
 from .serializers import (
     SmallReadRecipeSerializer, ReadRecipeSerializer,
@@ -159,3 +162,25 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         shopping_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated, ]
+    )
+    def download_shopping_cart(self, request):
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(ingredient_amount=Sum('amount'))
+        shopping_list = ['Список покупок:\n']
+        for ingredient in ingredients:
+            name = ingredient['ingredient__name']
+            unit = ingredient['ingredient__measurement_unit']
+            amount = ingredient['ingredient_amount']
+            shopping_list.append(f'\n{name} - {amount}, {unit}')
+        response = HttpResponse(shopping_list, content_type='text/plain')
+        response['Content-Disposition'] = \
+            'attachment; filename="shopping_cart.txt"'
+        return response
