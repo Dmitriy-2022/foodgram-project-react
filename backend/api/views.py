@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from djoser import views
 from django.shortcuts import get_object_or_404
 
@@ -31,12 +32,16 @@ class MyPaginator(PageNumberPagination):
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (AllowAny, )
+    pagination_class = None
 
 
 @permission_classes([permissions.IsAdminUser])
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    permission_classes = (AllowAny, )
+    pagination_class = None
 
 
 @permission_classes([permissions.AllowAny])
