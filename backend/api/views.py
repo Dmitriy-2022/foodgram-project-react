@@ -45,7 +45,6 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class FoodgramUserViewSet(views.UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    pagination_class = MyPaginator
 
     def get_queryset(self):
         queryset = User.objects.all()

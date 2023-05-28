@@ -11,10 +11,6 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
 
 
-class FavoriteRecipe():
-    model = Favorite
-
-
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
@@ -29,6 +25,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'name', 'measurement_unit']
+    search_fields = ['name']
     list_filter = ['name']
 
 
