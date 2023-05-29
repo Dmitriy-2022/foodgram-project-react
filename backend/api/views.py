@@ -10,6 +10,7 @@ from djoser import views
 from django.shortcuts import get_object_or_404
 
 from api.permissions import IsAdminAuthorOrReadOnly
+from api.filters import IngredientFilter
 from recipes.models import (
     Tag, Recipe, Ingredient,
     Follow, Favorite, ShoppingCart,
