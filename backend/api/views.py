@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
@@ -36,6 +37,8 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny, )
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = IngredientFilter
     pagination_class = None
 
 
