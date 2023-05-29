@@ -25,7 +25,6 @@ User = get_user_model()
 SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
 
-@permission_classes([permissions.IsAdminUser])
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -33,7 +32,6 @@ class TagsViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
-@permission_classes([permissions.IsAdminUser])
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
