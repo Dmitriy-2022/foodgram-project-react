@@ -5,8 +5,7 @@ import uuid
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from rest_framework import serializers, permissions
-from rest_framework.decorators import action
+from rest_framework import serializers
 
 from users.models import FoodgramUser
 from recipes.models import (
@@ -98,7 +97,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit', )
-        # read_only_fields = ()
 
 
 class AmountIngredientsSerializer(serializers.ModelSerializer):
