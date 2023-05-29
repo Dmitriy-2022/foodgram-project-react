@@ -97,8 +97,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', )
-        read_only_fields = ('name', 'measurement_unit', )
+        fields = ('id', 'name', 'measurement_unit', )
+        # read_only_fields = ()
 
 
 class AmountIngredientsSerializer(serializers.ModelSerializer):
