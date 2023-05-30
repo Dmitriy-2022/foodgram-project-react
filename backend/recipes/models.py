@@ -39,6 +39,9 @@ class Ingredient(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    class Meta:
+        ordering = ['pk']
+
 
 class Recipe(models.Model):
     author = models.ForeignKey(
