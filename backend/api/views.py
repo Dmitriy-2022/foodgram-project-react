@@ -91,8 +91,7 @@ class FoodgramUserViewSet(views.UserViewSet):
 
     @action(['post', 'delete'],
             detail=True,
-            url_path='subscribe',
-            permission_classes=permissions.IsAuthenticated
+            url_path='subscribe'
             )
     def subscribe(self, request, id=None):
         user = self.request.user
@@ -109,7 +108,8 @@ class FoodgramUserViewSet(views.UserViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAdminAuthorOrReadOnly, )
+    permission_classes = [IsAdminAuthorOrReadOnly, ]
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -118,8 +118,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     @action(['post', 'delete'],
             detail=True,
-            url_path='favorite',
-            permission_classes=permissions.IsAuthenticated
+            url_path='favorite'
             )
     def favorite(self, request, pk=None):
         user = self.request.user
@@ -136,8 +135,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     @action(['post', 'delete'],
             detail=True,
-            url_path='shopping_cart',
-            permission_classes=permissions.IsAuthenticated
+            url_path='shopping_cart'
             )
     def shopping_cart(self, request, pk=None):
         user = self.request.user
