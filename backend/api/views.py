@@ -10,7 +10,7 @@ from djoser import views
 from django.shortcuts import get_object_or_404
 
 from api.permissions import IsAdminAuthorOrReadOnly
-from api.filters import IngredientFilter
+from api.filters import IngredientFilter, RecipeFilter
 from recipes.models import (
     Tag, Recipe, Ingredient,
     Follow, Favorite, ShoppingCart,
@@ -110,6 +110,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = [IsAdminAuthorOrReadOnly, ]
     http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
