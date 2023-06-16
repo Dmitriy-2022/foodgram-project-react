@@ -17,6 +17,7 @@ User = get_user_model()
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    """Сериализатор для пользователей"""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -50,6 +51,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class PasswordSerializer(serializers.ModelSerializer):
+    """Сериализатор для пароля"""
     new_password = serializers.CharField(
         max_length=settings.LENGTH_150,
     )
@@ -63,6 +65,7 @@ class PasswordSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с тегами"""
 
     class Meta:
         model = Tag
@@ -70,6 +73,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class Base64ImageField(serializers.ImageField):
+    """Сериализатор для работы с изображениями"""
     def to_internal_value(self, data):
 
         if isinstance(data, six.string_types):
@@ -93,6 +97,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с ингредиентами"""
 
     class Meta:
         model = Ingredient
@@ -100,6 +105,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class AmountIngredientsSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с парой ингредиент-кол-во"""
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
     )
@@ -110,6 +116,7 @@ class AmountIngredientsSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с парой рецепт-ингредиент"""
     name = serializers.StringRelatedField(source='ingredient.name')
     measurement_unit = serializers.StringRelatedField(
         source='ingredient.measurement_unit')
@@ -124,6 +131,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class TagRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с парой рецепт-тег"""
     name = serializers.CharField(read_only=True)
     color = serializers.CharField(read_only=True)
     slug = serializers.SlugField(read_only=True)
@@ -134,6 +142,7 @@ class TagRecipeSerializer(serializers.ModelSerializer):
 
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для чтения рецептов"""
     author = UsersSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(source='recipe_set', many=True)
     tags = TagRecipeSerializer(read_only=True, many=True)
@@ -164,6 +173,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания/изменения рецептов"""
     image = Base64ImageField(max_length=None)
     ingredients = AmountIngredientsSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
@@ -242,6 +252,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
 
 class SmallReadRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для чтения краткой информации о рецепте"""
 
     class Meta:
         model = Recipe
@@ -249,6 +260,7 @@ class SmallReadRecipeSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с подписками"""
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     recipes = SmallReadRecipeSerializer(source='author', many=True)

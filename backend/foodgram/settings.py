@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'infra', '.env')
 load_dotenv(dotenv_path)
 
-SECRET_KEY = 'django-insecure-g3k_o9e!24q@4jkvk&#01@n8p)tm&_g!v@%2!5y99$h7&d#oc^'
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = False
 AUTH_USER_MODEL = 'users.FoodgramUser'
 
 ALLOWED_HOSTS = ['*']

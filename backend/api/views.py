@@ -28,6 +28,7 @@ SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
 
 class TagsViewSet(viewsets.ModelViewSet):
+    """Работа с тегами"""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny, )
@@ -35,6 +36,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
+    """Работа с ингредиентами"""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny, )
@@ -45,6 +47,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 
 @permission_classes([permissions.AllowAny])
 class FoodgramUserViewSet(views.UserViewSet):
+    """Работа с пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
 
@@ -107,6 +110,7 @@ class FoodgramUserViewSet(views.UserViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
+    """Работа с рецептами"""
     queryset = Recipe.objects.all()
     permission_classes = [IsAdminAuthorOrReadOnly, ]
     http_method_names = ['get', 'post', 'patch', 'delete']

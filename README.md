@@ -17,6 +17,7 @@ Foodgram - «Продуктовый помощник». На этом серви
 ``` python3 -m venv venv ``` 
 
 Windows:
+
 ``` source venv/Scripts/activate ```
     
 ``` python3 -m pip install --upgrade pip ``` 
@@ -33,7 +34,7 @@ Windows:
 
 ``` python3 manage.py runserver ``` 
 
-### В API endpoints:
+### API endpoints:
 
 * ```/api/users/```  Get-запрос – получение списка пользователей. POST-запрос – регистрация нового пользователя. Доступно без токена.
 
